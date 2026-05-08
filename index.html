@@ -1,0 +1,1706 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0d1610" />
+<title>Franchise Snapshot — Simbiotrek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --accent: #0092d4;
+    --accent-deep: #1b7bae;
+    --accent-dim: rgba(0, 146, 212, 0.14);
+    --dark: #0d1610;
+    --white: #ffffff;
+    --dim: rgba(255, 255, 255, 0.55);
+    --dim-2: rgba(255, 255, 255, 0.28);
+    --line: rgba(255, 255, 255, 0.10);
+    --line-strong: rgba(255, 255, 255, 0.18);
+    --font-d: "IBM Plex Sans JP", sans-serif;
+    --font-b: "DM Sans", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; min-height: 100%; }
+  body {
+    font-family: var(--font-b);
+    color: var(--white);
+    /* Original Simbiotrek green forest backdrop */
+    background:
+      radial-gradient(ellipse 90% 70% at 75% 20%, #2e5e44 0%, transparent 55%),
+      radial-gradient(ellipse 60% 80% at 15% 90%, #1a3326 0%, transparent 50%),
+      radial-gradient(ellipse 55% 45% at 90% 80%, #5a3820 0%, transparent 50%),
+      radial-gradient(ellipse 70% 50% at 50% 50%, #1c4030 0%, transparent 60%),
+      linear-gradient(160deg, #0d1610 0%, #162b1f 45%, #1e3828 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; min-height: 100dvh;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    pointer-events: none; opacity: 0.06; z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
+  }
+
+  /* App shell — full width, generous padding */
+  .app {
+    position: relative; z-index: 2;
+    max-width: 1240px; margin: 0 auto;
+    padding: 32px 48px 48px;
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+  }
+
+  /* Topbar */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 56px;
+    gap: 12px;
+  }
+  .topbar__left {
+    display: flex; align-items: center; gap: 18px;
+  }
+  .back-arrow {
+    background: transparent; border: 1px solid var(--line-strong);
+    color: var(--white); cursor: pointer;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all .15s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+  }
+  .back-arrow:hover {
+    border-color: var(--accent); color: var(--accent);
+    transform: translateX(-2px);
+  }
+  .brand-logo {
+    height: 36px;
+    width: auto;
+    display: block;
+    filter: brightness(1.15);
+  }
+  .step-tag {
+    font-family: var(--font-d); font-size: 11px;
+    letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase;
+    padding: 6px 12px;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+  }
+
+  /* Progress bar — desktop wider */
+  .progress { display: flex; gap: 6px; margin-bottom: 48px; max-width: 540px; }
+  .progress span {
+    flex: 1; height: 2px; background: var(--line);
+    border-radius: 2px; overflow: hidden; position: relative;
+  }
+  .progress span.done::after, .progress span.current::after {
+    content: ""; position: absolute; inset: 0;
+    background: var(--accent); transform-origin: left;
+  }
+  .progress span.current::after {
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 50%, transparent 100%);
+  }
+
+  /* Screens */
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; animation: fade .35s ease both; }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TWO-COLUMN LAYOUT — the heart of the desktop fix */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+    flex: 1;
+  }
+  .two-col__left { position: sticky; top: 32px; }
+  .two-col__right { display: flex; flex-direction: column; gap: 12px; }
+
+  /* Type */
+  .eyebrow {
+    font-family: var(--font-d); font-size: 11px;
+    letter-spacing: 0.22em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 24px;
+  }
+  .h-display {
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 52px; line-height: 1.08; letter-spacing: -0.015em;
+    margin-bottom: 28px;
+  }
+  .h-display em { font-style: normal; color: var(--accent); }
+  .lede {
+    font-weight: 300; font-size: 17px; line-height: 1.55;
+    color: var(--dim); margin-bottom: 32px;
+    max-width: 520px;
+  }
+
+  .meta-row {
+    display: flex; flex-direction: column; gap: 14px;
+    margin-bottom: 28px; padding: 22px 24px;
+    border: 1px solid var(--line); border-radius: 6px;
+    background: rgba(0,0,0,0.18);
+    max-width: 420px;
+  }
+  .meta-row .meta-item {
+    display: flex; justify-content: space-between; align-items: center; font-size: 13px;
+  }
+  .meta-row .k { color: var(--dim); font-family: var(--font-d); letter-spacing: 0.1em; }
+  .meta-row .v { color: var(--white); font-family: var(--font-d); }
+
+  .credibility {
+    font-size: 13px; color: var(--dim); line-height: 1.6;
+    margin-bottom: 28px; padding-left: 16px; border-left: 2px solid var(--accent);
+    max-width: 520px;
+  }
+
+  /* Q0 router cards */
+  .router-card {
+    text-align: left; cursor: pointer;
+    background: rgba(0,0,0,0.22);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 22px 24px; color: var(--white); width: 100%;
+    transition: all .2s ease;
+    -webkit-tap-highlight-color: transparent;
+    font-family: var(--font-b);
+    position: relative;
+    overflow: hidden;
+  }
+  .router-card::before {
+    content: ""; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--accent);
+    transform: scaleY(0); transform-origin: top;
+    transition: transform .2s ease;
+  }
+  .router-card:hover, .router-card:active {
+    border-color: var(--accent);
+    background: rgba(0,0,0,0.35);
+    transform: translateY(-1px);
+  }
+  .router-card:hover::before { transform: scaleY(1); }
+  .router-card .rc-title {
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 18px; line-height: 1.3; margin-bottom: 6px; color: var(--white);
+  }
+  .router-card .rc-sub {
+    font-size: 14px; color: var(--dim); line-height: 1.5;
+  }
+  .router-card .rc-arrow {
+    float: right; color: var(--accent); font-size: 20px; margin-top: 2px;
+    transition: transform .2s;
+    font-family: var(--font-d);
+  }
+  .router-card:hover .rc-arrow { transform: translateX(6px); }
+
+  /* Question screen — left has question + meta, right has options */
+  .qnum {
+    font-family: var(--font-d); font-size: 11px;
+    letter-spacing: 0.22em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 24px;
+  }
+  .qtext {
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 38px; line-height: 1.18; letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  .qhint {
+    font-size: 15px; color: var(--dim);
+    font-style: italic; margin-bottom: 32px; line-height: 1.55;
+    max-width: 460px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    text-align: left; background: rgba(0,0,0,0.22);
+    border: 1px solid var(--line); color: var(--white);
+    padding: 18px 22px; border-radius: 6px;
+    font-family: var(--font-b); font-size: 15px; line-height: 1.4;
+    cursor: pointer; transition: all .18s ease; position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .option:hover, .option:active {
+    border-color: var(--accent); background: rgba(0,0,0,0.35);
+  }
+  .option.selected {
+    border-color: var(--accent); background: var(--accent-dim);
+  }
+  .option.selected::after {
+    content: "→"; position: absolute; right: 18px; top: 50%;
+    transform: translateY(-50%); color: var(--accent); font-size: 20px;
+  }
+
+  /* Form */
+  .form { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; max-width: 480px; }
+  .field label {
+    display: block; font-family: var(--font-d); font-size: 11px;
+    letter-spacing: 0.18em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .field input {
+    width: 100%; background: rgba(0,0,0,0.30);
+    border: 1px solid var(--line); color: var(--white);
+    padding: 15px 18px; border-radius: 6px;
+    font-family: var(--font-b); font-size: 15px;
+    transition: border-color .15s;
+  }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .field input::placeholder { color: var(--dim-2); }
+  .field input.invalid { border-color: #d46060; }
+
+  .phone-input {
+    display: flex; align-items: stretch;
+    background: rgba(0,0,0,0.30);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    transition: border-color .15s;
+  }
+  .phone-input:focus-within { border-color: var(--accent); }
+  .phone-input.invalid { border-color: #d46060; }
+  .phone-prefix {
+    display: inline-flex; align-items: center;
+    padding: 0 16px;
+    color: var(--accent);
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 15px;
+    border-right: 1px solid var(--line);
+    user-select: none;
+  }
+  .phone-input input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    color: var(--white);
+    padding: 15px 18px;
+    font-family: var(--font-b);
+    font-size: 15px;
+  }
+  .phone-input input:focus { outline: none; }
+
+  .form-error {
+    color: #e08080; font-size: 13px; line-height: 1.5;
+    padding: 10px 14px;
+    border-left: 2px solid #d46060;
+    background: rgba(212, 96, 96, 0.08);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .privacy { font-size: 12px; color: var(--dim-2); line-height: 1.5; margin-top: 4px; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 14px; padding: 16px 28px;
+    background: var(--accent); color: #fff;
+    border: 0; border-radius: 6px;
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 14px; letter-spacing: 0.08em;
+    cursor: pointer; text-transform: uppercase; text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s, background .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0, 146, 212, 0.30);
+    background: var(--accent-deep);
+  }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; background: var(--accent); }
+  .btn-ghost {
+    background: transparent; color: var(--dim); border: 1px solid var(--line-strong);
+  }
+  .btn-ghost:hover {
+    color: var(--white); border-color: var(--white);
+    box-shadow: none; background: transparent;
+  }
+  .btn-row { display: flex; gap: 12px; margin-top: 28px; }
+
+  /* Result */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+    margin-bottom: 32px;
+  }
+  .result-card {
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 32px 28px;
+    background: rgba(0,0,0,0.30);
+    position: relative; overflow: hidden;
+  }
+  .result-card::before {
+    content: ""; position: absolute;
+    top: -60px; right: -60px; width: 200px; height: 200px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 65%);
+    opacity: 0.15; pointer-events: none;
+  }
+  .result-card::after {
+    content: ""; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--accent);
+  }
+  .result-brand {
+    font-family: var(--font-d); font-size: 11px;
+    letter-spacing: 0.22em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .result-brand-name {
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 22px; color: var(--white); margin-bottom: 28px;
+  }
+  .score-block { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .score-num {
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 108px; line-height: 1; color: var(--accent);
+    letter-spacing: -0.04em;
+  }
+  .score-out { font-family: var(--font-d); font-size: 28px; color: var(--dim); }
+  .score-label {
+    font-family: var(--font-d); font-size: 11px;
+    letter-spacing: 0.22em; color: var(--dim);
+    text-transform: uppercase; margin-bottom: 24px;
+  }
+  .archetype {
+    font-family: var(--font-d); font-size: 17px; color: var(--white);
+    line-height: 1.4; padding-top: 24px; border-top: 1px solid var(--line);
+  }
+  .archetype span { color: var(--accent); }
+
+  .radar-wrap {
+    padding: 28px 24px;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: rgba(0,0,0,0.22);
+  }
+  .radar-title {
+    font-family: var(--font-d); font-size: 11px;
+    letter-spacing: 0.22em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 18px; text-align: center;
+  }
+  .radar { width: 100%; height: auto; display: block; overflow: visible; }
+
+  .recs-section {
+    margin-bottom: 32px;
+  }
+  .recs-title {
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 26px; margin-bottom: 6px; letter-spacing: -0.005em;
+  }
+  .recs-sub {
+    font-size: 14px; color: var(--dim);
+    margin-bottom: 24px; line-height: 1.55;
+    max-width: 600px;
+  }
+  .recs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .rec {
+    border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 6px; padding: 22px 22px;
+    background: rgba(0,0,0,0.22);
+    display: flex; flex-direction: column;
+  }
+  .rec-svg {
+    width: 100%; height: auto; max-height: 96px;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .rec h4 {
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 16px; margin-bottom: 10px; color: var(--white);
+    line-height: 1.3;
+  }
+  .rec p { font-size: 14px; color: var(--dim); line-height: 1.6; }
+
+  .cta-section {
+    margin-top: 24px; padding: 32px 32px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.30);
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+  .cta-copy { font-family: var(--font-d); font-weight: 500; font-size: 22px; line-height: 1.3; margin-bottom: 8px; letter-spacing: -0.005em; }
+  .cta-sub { font-size: 14px; color: var(--dim); line-height: 1.6; }
+  .cta-actions { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+
+  /* Lead-magnet content */
+  .lm-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .lm-item {
+    border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 6px; padding: 22px 24px;
+    background: rgba(0,0,0,0.22);
+  }
+  .lm-item .num {
+    font-family: var(--font-d); font-size: 11px;
+    letter-spacing: 0.22em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 10px; display: block;
+  }
+  .lm-item .q {
+    font-family: var(--font-d); font-weight: 500;
+    font-size: 16px; line-height: 1.35; color: var(--white); margin-bottom: 10px;
+  }
+  .lm-item .why { font-size: 14px; color: var(--dim); line-height: 1.6; }
+
+  .footer {
+    margin-top: 56px; padding-top: 28px;
+    border-top: 1px solid var(--line);
+    font-size: 12px; color: var(--dim-2);
+    letter-spacing: 0.05em; line-height: 1.6;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 24px;
+  }
+  .footer-brand {
+    font-family: var(--font-d); color: var(--dim);
+    letter-spacing: 0.22em; text-transform: uppercase;
+  }
+
+  /* ===== TABLET (under 900px) ===== */
+  @media (max-width: 900px) {
+    .app { padding: 28px 32px 40px; }
+    .two-col { grid-template-columns: 1fr; gap: 36px; }
+    .two-col__left { position: static; }
+    .h-display { font-size: 42px; }
+    .qtext { font-size: 30px; }
+    .score-num { font-size: 88px; }
+    .result-grid { grid-template-columns: 1fr; gap: 20px; }
+    .recs-grid { grid-template-columns: 1fr; }
+    .cta-section { grid-template-columns: 1fr; gap: 24px; padding: 24px; }
+    .lm-grid { grid-template-columns: 1fr; }
+    .footer { flex-direction: column; gap: 8px; }
+  }
+
+  /* ===== MOBILE (under 600px — the QR scan case) ===== */
+  @media (max-width: 600px) {
+    .app { padding: 24px 20px 36px; }
+    .topbar { margin-bottom: 32px; }
+    .brand-logo { height: 28px; }
+    .back-arrow { width: 34px; height: 34px; }
+    .topbar__left { gap: 12px; }
+    .step-tag { font-size: 10px; padding: 5px 10px; }
+    .progress { margin-bottom: 32px; max-width: none; }
+
+    /* Critical fix: stack two-col tightly on mobile, no wasted vertical space */
+    .two-col { display: flex; flex-direction: column; gap: 24px; }
+    .two-col__left, .two-col__right { width: 100%; position: static; }
+
+    .h-display { font-size: 30px; line-height: 1.16; margin-bottom: 18px; }
+    .lede { font-size: 15px; margin-bottom: 22px; }
+    .qtext { font-size: 22px; line-height: 1.28; margin-bottom: 12px; }
+    .qhint { font-size: 13px; margin-bottom: 18px; }
+    .qnum { margin-bottom: 12px; }
+    .meta-row { padding: 18px 20px; }
+    .credibility { font-size: 12px; margin-bottom: 22px; padding-left: 14px; }
+    .router-card { padding: 18px 20px; }
+    .router-card .rc-title { font-size: 16px; }
+    .router-card .rc-sub { font-size: 13px; }
+    .option { padding: 16px 18px; font-size: 15px; }
+    .btn { padding: 16px 22px; font-size: 13px; flex: 1; }
+    .btn-row { gap: 10px; margin-top: 22px; }
+    .btn-ghost { flex: 0 0 auto; padding: 16px 18px; }
+    .score-num { font-size: 72px; }
+    .score-out { font-size: 22px; }
+    .result-card { padding: 24px 22px; }
+    .result-brand-name { font-size: 19px; margin-bottom: 22px; }
+    .archetype { font-size: 15px; padding-top: 18px; }
+    .radar-wrap { padding: 22px 12px; }
+    .recs-title { font-size: 22px; }
+    .recs-sub { font-size: 13px; margin-bottom: 18px; }
+    .rec { padding: 18px 18px; }
+    .rec-svg { max-height: 80px; margin-bottom: 12px; }
+    .cta-section { padding: 22px; gap: 18px; }
+    .cta-copy { font-size: 19px; }
+    .cta-sub { font-size: 13px; }
+    .lm-item { padding: 18px 20px; }
+    .lm-item .q { font-size: 15px; }
+    .lm-item .why { font-size: 13px; }
+    .footer { font-size: 11px; margin-top: 36px; }
+    .form-error { font-size: 12px; padding: 8px 12px; }
+    .phone-prefix { padding: 0 12px; font-size: 14px; }
+    .phone-input input { padding: 13px 14px; font-size: 15px; }
+    .field input { padding: 13px 16px; font-size: 15px; }
+  }
+
+  /* ===== SMALL PHONES (under 380px — older/iPhone SE) ===== */
+  @media (max-width: 380px) {
+    .app { padding: 20px 16px 32px; }
+    .h-display { font-size: 26px; }
+    .qtext { font-size: 20px; }
+    .step-tag { display: none; } /* free up topbar space on tiny screens */
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <div class="topbar">
+      <div class="topbar__left">
+        <button class="back-arrow" id="backArrow" onclick="goBack()" aria-label="Back" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <img class="brand-logo" src="simbiotrek-logo.png" alt="Simbiotrek" />
+      </div>
+      <div class="step-tag" id="stepTag">Franchise Snapshot</div>
+    </div>
+
+    <div class="progress" id="progress" style="display:none;">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <!-- ========================== INTRO ========================== -->
+    <section class="screen active" id="screen-intro">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="eyebrow">A diagnostic for the franchise floor</div>
+          <h1 class="h-display">Built for <em>brand-side</em> operators. Which one are you?</h1>
+          <p class="lede">There are different kinds of you walking this expo. We've built different things for each. Pick the one that fits — we'll route you to a 90-second snapshot or a takeaway.</p>
+          <div class="credibility">
+            Built by Simbiotrek — value engineering partners for multi-location brands and franchise operators across India, the US, and APAC. We've shipped expansion-decision engines, ops dashboards, and franchise data platforms.
+          </div>
+        </div>
+        <div class="two-col__right">
+
+          <button class="router-card" onclick="startPath('operator')">
+            <span class="rc-arrow">→</span>
+            <div class="rc-title">I run a brand with multiple outlets</div>
+            <div class="rc-sub">10+ outlets. Operations, visibility, expansion, franchisee management. You feel growth outpacing your systems.</div>
+          </button>
+
+          <button class="router-card" onclick="startPath('emerging')">
+            <span class="rc-arrow">→</span>
+            <div class="rc-title">I'm thinking about franchising my brand</div>
+            <div class="rc-sub">2–10 outlets. Considering the franchise model. Want to know if you're actually ready before you sell rights.</div>
+          </button>
+
+          <button class="router-card" onclick="startPath('franchisee')">
+            <span class="rc-arrow">→</span>
+            <div class="rc-title">I run someone else's brand as a franchisee</div>
+            <div class="rc-sub">We work with the brand side — but here's a takeaway built for you.</div>
+          </button>
+
+          <button class="router-card" onclick="startPath('broker')">
+            <span class="rc-arrow">→</span>
+            <div class="rc-title">I'm an investor, broker, or service provider</div>
+            <div class="rc-sub">We're not your tool — but we partner with people like you. Quick context.</div>
+          </button>
+
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-brand">SIMBIOTREK · 2026</div>
+        <div>We solve the business problem, then build what fixes it.</div>
+      </div>
+    </section>
+
+    <!-- ========================== OPERATOR PATH ========================== -->
+
+    <section class="screen" id="screen-op-q1">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">01 / 06 · Visibility</div>
+          <h2 class="qtext">How do you usually find out a franchisee is in trouble?</h2>
+          <p class="qhint">Be honest. Nobody's grading you.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="op-q1" data-dim="visibility">
+            <button class="option" data-score="1">They call us, already upset</button>
+            <button class="option" data-score="2">A monthly review meeting flags it</button>
+            <button class="option" data-score="3">A weekly report we run manually</button>
+            <button class="option" data-score="4">A live dashboard alerts us, same day</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-op-q2">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">02 / 06 · Decisions</div>
+          <h2 class="qtext">When you decide where to open the next outlet, the call is mostly based on…</h2>
+          <p class="qhint">Pick the one closest to reality.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="op-q2" data-dim="decisions">
+            <button class="option" data-score="1">Gut, relationships, who's asking for it</button>
+            <button class="option" data-score="2">Footfall and a quick Google Maps look</button>
+            <button class="option" data-score="3">A spreadsheet of demographics and competition</button>
+            <button class="option" data-score="4">Drive-time, demographic, and competitor data layered together</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-op-q3">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">03 / 06 · Standardization</div>
+          <h2 class="qtext">Pick the one operations metric you genuinely trust today.</h2>
+          <p class="qhint">If you hesitated, that's the answer.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="op-q3" data-dim="standardization">
+            <button class="option" data-score="1">Honestly? None of them fully</button>
+            <button class="option" data-score="2">Revenue — but only at month-end</button>
+            <button class="option" data-score="3">A few KPIs we've cleaned up over time</button>
+            <button class="option" data-score="4">A core dashboard the whole team runs on</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-op-q4">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">04 / 06 · Onboarding</div>
+          <h2 class="qtext">From signed franchise agreement to first rupee of revenue takes you roughly…</h2>
+          <p class="qhint">Average across your last 5 outlets.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="op-q4" data-dim="standardization">
+            <button class="option" data-score="1">6 months or more — every time is different</button>
+            <button class="option" data-score="2">3–6 months, with friction we keep hitting</button>
+            <button class="option" data-score="3">2–3 months, mostly on track</button>
+            <button class="option" data-score="4">Under 60 days, we've systemized it</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-op-q5">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">05 / 06 · Friction</div>
+          <h2 class="qtext">Where does your team spend the most repetitive, soul-crushing time?</h2>
+          <p class="qhint">The thing that should not still be manual in 2026.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="op-q5" data-dim="visibility">
+            <button class="option" data-score="1">Chasing franchisees for reports and data</button>
+            <button class="option" data-score="2">Reconciling numbers across spreadsheets</button>
+            <button class="option" data-score="3">Onboarding, training, document handoffs</button>
+            <button class="option" data-score="4">Honestly, we've cleaned most of this up</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-op-q6">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">06 / 06 · Growth</div>
+          <h2 class="qtext">If one system magically appeared tomorrow, which would unlock the most growth?</h2>
+          <p class="qhint">The one you've been meaning to build for two years.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="op-q6" data-dim="expansion">
+            <button class="option" data-score="2" data-rec="visibility">A single-pane ops view across all outlets</button>
+            <button class="option" data-score="2" data-rec="expansion">A smart territory & site-selection engine</button>
+            <button class="option" data-score="2" data-rec="standardization">A franchisee onboarding & training system</button>
+            <button class="option" data-score="2" data-rec="data">An ops data platform that actually answers questions</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== EMERGING BRAND PATH ========================== -->
+
+    <section class="screen" id="screen-em-q1">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">01 / 06 · Unit Economics</div>
+          <h2 class="qtext">Do you know your per-outlet payback period to the second decimal — or roughly?</h2>
+          <p class="qhint">Franchisees will ask. They'll know if you're guessing.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="em-q1" data-dim="economics">
+            <button class="option" data-score="1">Honestly, it's a feel — depends on the outlet</button>
+            <button class="option" data-score="2">We have a number, but it's not battle-tested</button>
+            <button class="option" data-score="3">Yes, with 2–3 outlets of clean data behind it</button>
+            <button class="option" data-score="4">Yes, with consistent data across multiple outlets and scenarios</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-em-q2">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">02 / 06 · Process</div>
+          <h2 class="qtext">If your best store manager left tomorrow, how much knowledge walks out with them?</h2>
+          <p class="qhint">Translation: how much is in their head vs. in your SOPs.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="em-q2" data-dim="process">
+            <button class="option" data-score="1">A frightening amount. We'd be in trouble.</button>
+            <button class="option" data-score="2">A fair bit — we've been meaning to document things</button>
+            <button class="option" data-score="3">Some, but core ops would survive fine</button>
+            <button class="option" data-score="4">Almost none. Process is documented and trained</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-em-q3">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">03 / 06 · Brand & Legal</div>
+          <h2 class="qtext">Your brand IP, trademarks, and franchise agreement template are…</h2>
+          <p class="qhint">The boring stuff that breaks deals six months in.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="em-q3" data-dim="brand">
+            <button class="option" data-score="1">We'll deal with it when we have a buyer</button>
+            <button class="option" data-score="2">Started, partial, lawyer's been slow</button>
+            <button class="option" data-score="3">Mostly in place, needs tightening</button>
+            <button class="option" data-score="4">Filed, signed, ready, reviewed by counsel</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-em-q4">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">04 / 06 · Pilot Mindset</div>
+          <h2 class="qtext">Your first franchisee — what's the plan?</h2>
+          <p class="qhint">There's a right answer. It's not 'sell ten by Q4'.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="em-q4" data-dim="pilot">
+            <button class="option" data-score="1">Sign as many as possible, fast — get the cash</button>
+            <button class="option" data-score="2">Sign 2–3 in different cities to spread risk</button>
+            <button class="option" data-score="3">One pilot franchisee, hand-held, learn everything</button>
+            <button class="option" data-score="4">One pilot, with a clear playbook for what we'll measure and fix before #2</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-em-q5">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">05 / 06 · Margin Truth</div>
+          <h2 class="qtext">When you hand the model to a franchisee, your margins will be…</h2>
+          <p class="qhint">The number that will keep them — or break them.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="em-q5" data-dim="economics">
+            <button class="option" data-score="1">Untested at someone else's hands</button>
+            <button class="option" data-score="2">Probably tighter, hopefully workable</button>
+            <button class="option" data-score="3">Modeled, with a buffer, looks healthy</button>
+            <button class="option" data-score="4">Modeled, stress-tested, with downside scenarios</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-em-q6">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="qnum">06 / 06 · Why Now</div>
+          <h2 class="qtext">Why are you franchising — really?</h2>
+          <p class="qhint">No wrong answer. Just an honest one.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="options" data-q="em-q6" data-dim="pilot">
+            <button class="option" data-score="1" data-rec="cashflow">We need capital fast and franchisees bring cash</button>
+            <button class="option" data-score="2" data-rec="growth">Demand is real and we can't open outlets fast enough</button>
+            <button class="option" data-score="3" data-rec="model">The model works and we want to scale operating talent</button>
+            <button class="option" data-score="4" data-rec="model">All of the above, in roughly that order</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== CAPTURE ========================== -->
+
+    <section class="screen" id="screen-capture">
+      <div class="two-col">
+        <div class="two-col__left">
+          <div class="eyebrow">One last step</div>
+          <h2 class="h-display">Where should we send your <em>snapshot</em>?</h2>
+          <p class="lede">Drop your details to unlock your result. We'll only reach out if you ask us to.</p>
+          <p style="font-size:13px; color: var(--dim-2); line-height: 1.6; max-width: 460px;">No spam, no pushy follow-ups. One snapshot. Then it's on you.</p>
+        </div>
+        <div class="two-col__right">
+          <div class="form">
+            <div class="field">
+              <label>Your Name</label>
+              <input type="text" id="f-name" placeholder="e.g. Rohan Mehta" autocomplete="name" />
+            </div>
+            <div class="field">
+              <label>Brand / Company</label>
+              <input type="text" id="f-brand" placeholder="e.g. Crustlab Pizzeria" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="f-email" placeholder="rohan@crustlab.in" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label>WhatsApp Number</label>
+              <div class="phone-input">
+                <span class="phone-prefix">+91</span>
+                <input type="tel" id="f-phone" placeholder="98765 43210" autocomplete="tel" inputmode="numeric" maxlength="12" />
+              </div>
+            </div>
+            <p class="form-error" id="formError" style="display:none;"></p>
+            <div class="btn-row">
+              <button class="btn" onclick="submitAndReveal()" id="revealBtn">Reveal My Snapshot</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== RESULT ========================== -->
+
+    <section class="screen" id="screen-result">
+      <div class="eyebrow" id="r-eyebrow">Your Operating Snapshot</div>
+
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="result-brand">For</div>
+          <div class="result-brand-name" id="r-brand">—</div>
+
+          <div class="score-block">
+            <span class="score-num" id="r-score">0</span>
+            <span class="score-out">/ 100</span>
+          </div>
+          <div class="score-label" id="r-score-label">Operating Maturity Score</div>
+
+          <div class="archetype">You operate like <span id="r-archetype">—</span></div>
+        </div>
+
+        <div class="radar-wrap">
+          <div class="radar-title" id="r-radar-title">Where you stand</div>
+          <svg class="radar" viewBox="0 0 360 280" id="radar"></svg>
+        </div>
+      </div>
+
+      <div class="recs-section">
+        <h3 class="recs-title" id="r-recs-title">What we'd build first</h3>
+        <p class="recs-sub" id="r-recs-sub">Based on your answers, here's where the highest-value, lowest-friction wins are.</p>
+        <div class="recs-grid" id="r-recs"></div>
+      </div>
+
+      <div class="cta-section">
+        <div>
+          <p class="cta-copy">Want to talk through this snapshot?</p>
+          <p class="cta-sub">15 minutes on WhatsApp. No deck, no pitch. We'll tell you whether your top issue is a system problem or a process problem — and you decide what to do with it.</p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn" id="waBtn" target="_blank" rel="noopener">Message Sneha on WhatsApp</a>
+          <button class="btn btn-ghost" onclick="restart()">Take it again</button>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-brand">SIMBIOTREK · FRANCHISE INDIA 2026</div>
+        <div>Value engineering for growing businesses.</div>
+      </div>
+    </section>
+
+    <!-- ========================== FRANCHISEE LEAD-MAGNET ========================== -->
+
+    <section class="screen" id="screen-franchisee">
+      <div class="two-col" style="margin-bottom: 32px;">
+        <div class="two-col__left">
+          <div class="eyebrow">For franchisees</div>
+          <h1 class="h-display">5 questions to ask your <em>franchisor</em> before signing the next renewal.</h1>
+        </div>
+        <div class="two-col__left">
+          <p class="lede">We don't work with franchisees — we work with brand-side. But these are the things we wish more franchisees asked their brand HQ. Built from what we see go wrong inside operators we work with.</p>
+        </div>
+      </div>
+
+      <div class="lm-grid">
+        <div class="lm-item">
+          <span class="num">01 · Territory</span>
+          <div class="q">"Show me the territory protection clause — and what counts as 'cannibalization'."</div>
+          <div class="why">Most franchise agreements have soft language here. If they can't define it numerically (radius, drive-time, revenue impact), assume they'll open next door when growth slows.</div>
+        </div>
+        <div class="lm-item">
+          <span class="num">02 · Real Numbers</span>
+          <div class="q">"What's the average payback period across your last 10 outlets — not the brochure number?"</div>
+          <div class="why">If they hesitate or quote you a model number, they don't have clean data on actual franchisee outcomes. Ask for the median, not the average. Walk if they can't produce it.</div>
+        </div>
+        <div class="lm-item">
+          <span class="num">03 · Customer Data</span>
+          <div class="q">"Who owns the customer data — me or the brand?"</div>
+          <div class="why">If the brand owns it, you have no leverage at renewal. If you own it, you have a business. This single question reshapes the entire deal.</div>
+        </div>
+        <div class="lm-item">
+          <span class="num">04 · Marketing Fund</span>
+          <div class="q">"What's the marketing fund spent on — and can I see the audit?"</div>
+          <div class="why">Marketing royalties without spend transparency are the #1 source of franchisee resentment. A confident brand will show you. A defensive brand will deflect.</div>
+        </div>
+        <div class="lm-item" style="grid-column: 1 / -1;">
+          <span class="num">05 · Renewal Patterns</span>
+          <div class="q">"What's your renewal renegotiation pattern — by name?"</div>
+          <div class="why">"Have you ever changed terms unfavorably at renewal? Tell me about a specific case." The answer tells you whether they treat franchisees as partners or as recurring revenue.</div>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <div>
+          <p class="cta-copy">Take the card. Save the questions.</p>
+          <p class="cta-sub">If you ever flip to the brand side — start your own brand or join one's HQ team — we're who you'll want to call.</p>
+        </div>
+        <div class="cta-actions">
+          <button class="btn" onclick="goTo('intro')">Back to start</button>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-brand">SIMBIOTREK · FRANCHISE INDIA 2026</div>
+        <div>Value engineering for the brand side of the franchise table.</div>
+      </div>
+    </section>
+
+    <!-- ========================== BROKER PATH ========================== -->
+
+    <section class="screen" id="screen-broker">
+      <div class="two-col" style="margin-bottom: 32px;">
+        <div class="two-col__left">
+          <div class="eyebrow">For investors, brokers & service providers</div>
+          <h1 class="h-display">We're not your tool — but we partner with people who <em>send brands our way</em>.</h1>
+        </div>
+        <div class="two-col__left">
+          <p class="lede">Simbiotrek works with multi-location operators and emerging brands on operations, expansion decisions, and franchise systems. We don't compete with brokers, lawyers, or capital partners — we sit alongside them in the deal.</p>
+        </div>
+      </div>
+
+      <div class="recs-grid" style="margin-bottom: 32px;">
+        <div class="lm-item">
+          <span class="num">When to refer</span>
+          <div class="q">A brand has 5+ outlets and is asking "should I franchise"?</div>
+          <div class="why">We do the readiness diagnostic, build the systems, and stay through the first 10 franchisee onboardings.</div>
+        </div>
+        <div class="lm-item">
+          <span class="num">When to refer</span>
+          <div class="q">A franchisor has 20+ outlets and operations are visibly fraying?</div>
+          <div class="why">We build the ops dashboard, expansion engine, and franchisee management layer. Three of our clients went from spreadsheet chaos to live ops in under 90 days.</div>
+        </div>
+        <div class="lm-item">
+          <span class="num">When to refer</span>
+          <div class="q">A PE / family office is doing diligence on a multi-location brand?</div>
+          <div class="why">We do operational diligence — what their reports won't show. The systems gaps that determine whether the next 5x is real or imaginary.</div>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <div>
+          <p class="cta-copy">If you refer well, we make it worth it.</p>
+          <p class="cta-sub">No formal commission program — but we work with our referrers as partners on every engagement they bring. Sean, our principal, handles partnerships directly.</p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn" id="brokerBtn" target="_blank" rel="noopener">Message Sneha on WhatsApp</a>
+          <button class="btn btn-ghost" onclick="goTo('intro')">Back to start</button>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-brand">SIMBIOTREK · FRANCHISE INDIA 2026</div>
+        <div>Value engineering for growing businesses.</div>
+      </div>
+    </section>
+
+  </div>
+
+<script>
+  const state = {
+    path: null,
+    answers: {},
+    recPick: null,
+    name: "", brand: "", phone: "", email: "",
+    history: []  // back-stack of screen ids
+  };
+
+  const PATH_SCREENS = {
+    operator: ["op-q1","op-q2","op-q3","op-q4","op-q5","op-q6"],
+    emerging: ["em-q1","em-q2","em-q3","em-q4","em-q5","em-q6"]
+  };
+
+  // Linear flow map: which screen comes next after each question
+  const NEXT_OF = {
+    "op-q1": "op-q2", "op-q2": "op-q3", "op-q3": "op-q4",
+    "op-q4": "op-q5", "op-q5": "op-q6", "op-q6": "capture",
+    "em-q1": "em-q2", "em-q2": "em-q3", "em-q3": "em-q4",
+    "em-q4": "em-q5", "em-q5": "em-q6", "em-q6": "capture"
+  };
+
+  // Screens that should hide the back arrow (entry / terminal)
+  const NO_BACK = new Set(["intro", "result"]);
+
+  function goTo(id, options = {}) {
+    const current = currentScreenId();
+    // Push current to history unless we're explicitly going back
+    if (!options.fromBack && current && current !== id) {
+      state.history.push(current);
+    }
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById("screen-" + id).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "instant" });
+    updateProgress(id);
+    updateStepTag(id);
+    updateBackArrow(id);
+  }
+
+  function currentScreenId() {
+    const active = document.querySelector(".screen.active");
+    if (!active) return null;
+    return active.id.replace(/^screen-/, "");
+  }
+
+  function goBack() {
+    const prev = state.history.pop();
+    if (!prev) return;
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById("screen-" + prev).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "instant" });
+    updateProgress(prev);
+    updateStepTag(prev);
+    updateBackArrow(prev);
+  }
+
+  function updateBackArrow(id) {
+    const arrow = document.getElementById("backArrow");
+    arrow.style.display = (NO_BACK.has(id) || state.history.length === 0) ? "none" : "inline-flex";
+  }
+
+  function startPath(p) {
+    state.path = p;
+    if (p === "operator") goTo("op-q1");
+    else if (p === "emerging") goTo("em-q1");
+    else if (p === "franchisee") goTo("franchisee");
+    else if (p === "broker") { setupBrokerWA(); goTo("broker"); }
+  }
+
+  function updateProgress(id) {
+    const prog = document.getElementById("progress");
+    const list = state.path && PATH_SCREENS[state.path];
+    if (!list || !list.includes(id)) {
+      prog.style.display = "none";
+      return;
+    }
+    prog.style.display = "flex";
+    const idx = list.indexOf(id);
+    const spans = prog.querySelectorAll("span");
+    spans.forEach((s, i) => {
+      s.classList.remove("done", "current");
+      if (i < idx) s.classList.add("done");
+      else if (i === idx) s.classList.add("current");
+    });
+  }
+
+  function updateStepTag(id) {
+    const tag = document.getElementById("stepTag");
+    if (id === "intro") tag.textContent = "Franchise Snapshot";
+    else if (id.startsWith("op-")) tag.textContent = "Operator Diagnostic";
+    else if (id.startsWith("em-")) tag.textContent = "Readiness Diagnostic";
+    else if (id === "capture") tag.textContent = "Almost there";
+    else if (id === "result") tag.textContent = "Your Snapshot";
+    else if (id === "franchisee") tag.textContent = "For Franchisees";
+    else if (id === "broker") tag.textContent = "Partnerships";
+  }
+
+  // ===== AUTO-ADVANCE option handler =====
+  document.querySelectorAll(".options").forEach(group => {
+    const qKey = group.dataset.q;
+    const dim = group.dataset.dim;
+    group.querySelectorAll(".option").forEach(btn => {
+      btn.addEventListener("click", () => {
+        // Visual feedback: highlight the chosen option
+        group.querySelectorAll(".option").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        // Save answer
+        state.answers[qKey] = { score: parseInt(btn.dataset.score, 10), dim };
+        if (btn.dataset.rec) state.recPick = btn.dataset.rec;
+        // Auto-advance after 250ms (let user see the highlight)
+        const next = NEXT_OF[qKey];
+        if (next) {
+          setTimeout(() => goTo(next), 250);
+        }
+      });
+    });
+  });
+
+  function showFormError(msg, fieldId) {
+    const err = document.getElementById("formError");
+    err.textContent = msg;
+    err.style.display = "block";
+    if (fieldId) {
+      const el = document.getElementById(fieldId);
+      el.classList.add("invalid");
+      el.focus();
+      setTimeout(() => el.classList.remove("invalid"), 2500);
+    }
+    setTimeout(() => { err.style.display = "none"; }, 4500);
+  }
+
+  function clearFormError() {
+    document.getElementById("formError").style.display = "none";
+    ["f-name","f-brand","f-email","f-phone"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("invalid");
+    });
+  }
+
+  function submitAndReveal() {
+    clearFormError();
+    const name = document.getElementById("f-name").value.trim();
+    const brand = document.getElementById("f-brand").value.trim();
+    const email = document.getElementById("f-email").value.trim();
+    const phoneRaw = document.getElementById("f-phone").value.trim();
+    const phoneDigits = phoneRaw.replace(/\D/g, "");
+
+    if (!name) return showFormError("Please tell us your name.", "f-name");
+    if (!brand) return showFormError("Which brand or company are you with?", "f-brand");
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showFormError("That email doesn't look right — please double-check.", "f-email");
+    if (!phoneDigits || phoneDigits.length !== 10) return showFormError("Please enter a 10-digit Indian mobile number.", "f-phone");
+
+    state.name = name;
+    state.brand = brand;
+    state.email = email;
+    state.phone = "+91" + phoneDigits;
+
+    // Compute & render result first (so the user sees it instantly)
+    computeAndRender();
+    goTo("result");
+
+    // Send to Brevo (background, non-blocking — never gates the user experience)
+    sendToBrevo().catch(err => console.warn("Lead send failed (non-blocking):", err));
+  }
+
+  // ============ LEAD CAPTURE → BREVO (via n8n webhook) ============
+  // REPLACE THIS URL with your n8n webhook URL once the workflow is set up.
+  const LEAD_WEBHOOK_URL = "https://YOUR-N8N-INSTANCE.example.com/webhook/franchise-india-2026";
+
+  async function sendToBrevo() {
+    // Compute result fields for the payload
+    const summary = computeResultSummary();
+    const payload = {
+      // Brevo built-in fields
+      email: state.email,
+      // Brevo expects FIRSTNAME, SMS, etc. as ATTRIBUTES — n8n will map these
+      attributes: {
+        FIRSTNAME: state.name,
+        SMS: state.phone,                 // already prefixed +91...
+        BRAND_NAME: state.brand,
+        LEAD_SOURCE: "Franchise India 2026",
+        DIAGNOSTIC_PATH: state.path,      // "operator" | "emerging"
+        MATURITY_SCORE: summary.score,
+        ARCHETYPE: summary.archetype,
+        WEAKEST_DIMENSION: summary.weakest,
+        TOP_RECOMMENDATION: summary.topRec,
+        SUBMITTED_AT: new Date().toISOString()
+      },
+      // Brevo list ID for "Franchise India 2026" — n8n will inject from its config
+      // We pass the list NAME here; n8n maps it to the list ID
+      listName: "Franchise India 2026",
+      // Raw answers in case you want to log/audit them
+      answers: state.answers,
+      recPick: state.recPick
+    };
+
+    // If the webhook URL hasn't been set yet, just log the payload and skip the network call
+    if (LEAD_WEBHOOK_URL.includes("YOUR-N8N-INSTANCE")) {
+      console.log("[DEV] Lead payload (would have been sent to webhook):", payload);
+      return;
+    }
+
+    const res = await fetch(LEAD_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Webhook returned " + res.status);
+  }
+
+  function computeResultSummary() {
+    const isOp = state.path === "operator";
+    const dims = aggregateDims(isOp
+      ? ["op-q1","op-q2","op-q3","op-q4","op-q5","op-q6"]
+      : ["em-q1","em-q2","em-q3","em-q4","em-q5","em-q6"]);
+    const dimSet = isOp ? {
+      Visibility: dims.visibility || 1, Decisions: dims.decisions || 1,
+      Standardization: dims.standardization || 1, Expansion: dims.expansion || 1
+    } : {
+      "Unit Economics": dims.economics || 1, "Process": dims.process || 1,
+      "Brand & Legal": dims.brand || 1, "Pilot Mindset": dims.pilot || 1
+    };
+    const overall = avg(Object.values(dimSet));
+    const score = Math.round(((overall - 1) / 3) * 100);
+    const weakest = lowestKey(dimSet);
+    const archetype = isOp ? operatorArchetype(score, dimSet) : emergingArchetype(score, dimSet);
+
+    // Top rec mirrors the result-page logic: q6 pick first, else weakest
+    const RECS = isOp ? OP_RECS : EM_RECS;
+    const PICKS = isOp ? OP_REC_PICK : EM_REC_PICK;
+    let topRec = "";
+    if (state.recPick && PICKS[state.recPick]) topRec = PICKS[state.recPick].title;
+    else if (RECS[weakest]) topRec = RECS[weakest].title;
+
+    return { score, archetype, weakest, topRec };
+  }
+
+  function computeAndRender() {
+    if (state.path === "operator") computeOperator();
+    else if (state.path === "emerging") computeEmerging();
+  }
+
+  function computeOperator() {
+    const dims = aggregateDims(["op-q1","op-q2","op-q3","op-q4","op-q5","op-q6"]);
+    const dimSet = {
+      Visibility: dims.visibility || 1,
+      Decisions: dims.decisions || 1,
+      Standardization: dims.standardization || 1,
+      Expansion: dims.expansion || 1
+    };
+    const overall = avg(Object.values(dimSet));
+    const score = Math.round(((overall - 1) / 3) * 100);
+
+    document.getElementById("r-eyebrow").textContent = "Your Operating Snapshot";
+    document.getElementById("r-score-label").textContent = "Operating Maturity Score";
+    document.getElementById("r-radar-title").textContent = "Where you stand";
+    document.getElementById("r-recs-title").textContent = "What we'd build first";
+    document.getElementById("r-recs-sub").textContent = "Based on your answers, here's where the highest-value, lowest-friction wins are.";
+    document.getElementById("r-brand").textContent = state.brand.toUpperCase();
+    animateNumber("r-score", 0, score, 900);
+    document.getElementById("r-archetype").textContent = operatorArchetype(score, dimSet);
+
+    drawRadar(dimSet);
+    renderOperatorRecs(dimSet, state.recPick);
+    setupWhatsApp(score, "Operating Maturity");
+  }
+
+  function computeEmerging() {
+    const dims = aggregateDims(["em-q1","em-q2","em-q3","em-q4","em-q5","em-q6"]);
+    const dimSet = {
+      "Unit Economics": dims.economics || 1,
+      "Process": dims.process || 1,
+      "Brand & Legal": dims.brand || 1,
+      "Pilot Mindset": dims.pilot || 1
+    };
+    const overall = avg(Object.values(dimSet));
+    const score = Math.round(((overall - 1) / 3) * 100);
+
+    document.getElementById("r-eyebrow").textContent = "Your Franchise Readiness";
+    document.getElementById("r-score-label").textContent = "Franchise Readiness Score";
+    document.getElementById("r-radar-title").textContent = "Where you stand on readiness";
+    document.getElementById("r-recs-title").textContent = "What to fix before you sell rights";
+    document.getElementById("r-recs-sub").textContent = "Based on your answers, here's the order to fix things in — before signing your first franchisee.";
+    document.getElementById("r-brand").textContent = state.brand.toUpperCase();
+    animateNumber("r-score", 0, score, 900);
+    document.getElementById("r-archetype").textContent = emergingArchetype(score, dimSet);
+
+    drawRadar(dimSet);
+    renderEmergingRecs(dimSet, state.recPick);
+    setupWhatsApp(score, "Franchise Readiness");
+  }
+
+  function aggregateDims(qKeys) {
+    const buckets = {};
+    qKeys.forEach(qk => {
+      const a = state.answers[qk];
+      if (!a) return;
+      if (!buckets[a.dim]) buckets[a.dim] = [];
+      buckets[a.dim].push(a.score);
+    });
+    const out = {};
+    Object.entries(buckets).forEach(([dim, scores]) => {
+      out[dim] = avg(scores);
+    });
+    return out;
+  }
+
+  function avg(arr) {
+    const valid = arr.filter(v => typeof v === "number" && !isNaN(v));
+    if (!valid.length) return 1;
+    return valid.reduce((a,b) => a+b, 0) / valid.length;
+  }
+
+  function animateNumber(id, from, to, duration) {
+    const el = document.getElementById(id);
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(from + (to - from) * eased);
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function operatorArchetype(score, dims) {
+    if (score < 30) return "The Gut-Feel Operator";
+    if (score < 50) {
+      const weakest = lowestKey(dims);
+      if (weakest === "Visibility") return "The Spreadsheet King";
+      if (weakest === "Decisions") return "The Relationship-Driven Expander";
+      if (weakest === "Standardization") return "The Hand-Crafted Operator";
+      return "The Capable but Cautious";
+    }
+    if (score < 75) return "The Systemized Operator";
+    return "The Scale-Ready Brand";
+  }
+  function emergingArchetype(score, dims) {
+    if (score < 30) return "The Eager but Unready Founder";
+    if (score < 50) {
+      const weakest = lowestKey(dims);
+      if (weakest === "Unit Economics") return "The Optimist Without Numbers";
+      if (weakest === "Process") return "The Founder-Dependent Brand";
+      if (weakest === "Brand & Legal") return "The IP-Light Brand";
+      return "The Cash-Hungry Expander";
+    }
+    if (score < 75) return "The Pilot-Ready Brand";
+    return "The Franchise-Ready Brand";
+  }
+  function lowestKey(obj) {
+    return Object.entries(obj).sort((a,b) => a[1] - b[1])[0][0];
+  }
+
+  function drawRadar(dimSet) {
+    const svg = document.getElementById("radar");
+    const w = 360, h = 280;
+    const cx = w/2, cy = h/2 + 6;
+    const R = 86;
+    const labels = Object.keys(dimSet);
+    const N = labels.length;
+    const angle = (i) => (-Math.PI/2) + (i * 2 * Math.PI / N);
+
+    let html = "";
+    [1,2,3,4].forEach(level => {
+      const r = R * (level/4);
+      const pts = labels.map((_, i) => {
+        const a = angle(i);
+        return (cx + r*Math.cos(a)) + "," + (cy + r*Math.sin(a));
+      }).join(" ");
+      html += `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>`;
+    });
+    labels.forEach((_, i) => {
+      const a = angle(i);
+      html += `<line x1="${cx}" y1="${cy}" x2="${cx + R*Math.cos(a)}" y2="${cy + R*Math.sin(a)}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+    });
+
+    const dataPts = labels.map((l, i) => {
+      const a = angle(i);
+      const r = R * (dimSet[l] / 4);
+      return (cx + r*Math.cos(a)) + "," + (cy + r*Math.sin(a));
+    }).join(" ");
+    html += `<polygon points="${dataPts}" fill="rgba(0,146,212,0.25)" stroke="#0092d4" stroke-width="2"/>`;
+
+    labels.forEach((l, i) => {
+      const a = angle(i);
+      const r = R * (dimSet[l] / 4);
+      const x = cx + r*Math.cos(a);
+      const y = cy + r*Math.sin(a);
+      html += `<circle cx="${x}" cy="${y}" r="3" fill="#0092d4"/>`;
+    });
+
+    labels.forEach((l, i) => {
+      const a = angle(i);
+      const lx = cx + (R + 28) * Math.cos(a);
+      const ly = cy + (R + 28) * Math.sin(a);
+      let anchor = "middle";
+      if (Math.cos(a) > 0.3) anchor = "start";
+      else if (Math.cos(a) < -0.3) anchor = "end";
+      const dy = Math.sin(a) > 0.3 ? 12 : (Math.sin(a) < -0.3 ? -2 : 4);
+      html += `<text x="${lx}" y="${ly + dy}" text-anchor="${anchor}" fill="rgba(255,255,255,0.7)" font-family="IBM Plex Sans JP, sans-serif" font-size="10" letter-spacing="1.2">${l.toUpperCase()}</text>`;
+    });
+
+    svg.innerHTML = html;
+  }
+
+  // ============ REC LIBRARIES (now with animated SVG diagrams) ============
+
+  const SVG = {
+    // Dashboard with pulsing widgets — for Visibility / Single-Pane Ops
+    dashboard: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <rect x="6" y="8" width="42" height="22" rx="2" fill="rgba(0,146,212,0.10)" stroke="rgba(0,146,212,0.5)" stroke-width="0.5">
+          <animate attributeName="fill" values="rgba(0,146,212,0.10);rgba(0,146,212,0.25);rgba(0,146,212,0.10)" dur="2.4s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="52" y="8" width="42" height="22" rx="2" fill="rgba(0,146,212,0.10)" stroke="rgba(0,146,212,0.5)" stroke-width="0.5">
+          <animate attributeName="fill" values="rgba(0,146,212,0.10);rgba(0,146,212,0.25);rgba(0,146,212,0.10)" dur="2.4s" begin="0.6s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="6" y="34" width="42" height="22" rx="2" fill="rgba(0,146,212,0.10)" stroke="rgba(0,146,212,0.5)" stroke-width="0.5">
+          <animate attributeName="fill" values="rgba(0,146,212,0.10);rgba(0,146,212,0.25);rgba(0,146,212,0.10)" dur="2.4s" begin="1.2s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="52" y="34" width="42" height="22" rx="2" fill="rgba(0,146,212,0.10)" stroke="rgba(0,146,212,0.5)" stroke-width="0.5">
+          <animate attributeName="fill" values="rgba(0,146,212,0.10);rgba(0,146,212,0.25);rgba(0,146,212,0.10)" dur="2.4s" begin="1.8s" repeatCount="indefinite"/>
+        </rect>
+        <line x1="10" y1="22" x2="44" y2="22" stroke="#0092d4" stroke-width="0.8" opacity="0.6"/>
+        <polyline points="10,22 18,18 26,20 34,15 44,17" fill="none" stroke="#0092d4" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+    // Map with appearing pins — for Expansion / Site Selection
+    map: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <path d="M 8 20 Q 25 12, 40 22 T 70 18 Q 85 16, 92 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+        <path d="M 8 36 Q 30 30, 50 38 T 92 34" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+        <path d="M 8 50 Q 25 44, 45 50 T 92 48" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+        <circle cx="22" cy="24" r="0" fill="#0092d4">
+          <animate attributeName="r" values="0;3;3;3;0" dur="3.6s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="48" cy="36" r="0" fill="#0092d4">
+          <animate attributeName="r" values="0;0;3;3;3" dur="3.6s" begin="0.5s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="72" cy="22" r="0" fill="#0092d4">
+          <animate attributeName="r" values="0;0;0;3;3" dur="3.6s" begin="1.2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="78" cy="46" r="0" fill="#0092d4">
+          <animate attributeName="r" values="0;0;0;0;3" dur="3.6s" begin="2s" repeatCount="indefinite"/>
+        </circle>
+      </svg>`,
+    // Checklist filling in — for Standardization / Onboarding
+    checklist: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <g font-family="monospace" font-size="0">
+          <rect x="10" y="14" width="6" height="6" rx="1" fill="none" stroke="#0092d4" stroke-width="0.8"/>
+          <line x1="20" y1="17" x2="80" y2="17" stroke="rgba(255,255,255,0.4)" stroke-width="0.7"/>
+          <path d="M 11.5 17 L 13 18.5 L 15 15.5" fill="none" stroke="#0092d4" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6" stroke-dashoffset="6">
+            <animate attributeName="stroke-dashoffset" values="6;0;0;6" dur="4s" repeatCount="indefinite"/>
+          </path>
+          <rect x="10" y="26" width="6" height="6" rx="1" fill="none" stroke="#0092d4" stroke-width="0.8"/>
+          <line x1="20" y1="29" x2="74" y2="29" stroke="rgba(255,255,255,0.4)" stroke-width="0.7"/>
+          <path d="M 11.5 29 L 13 30.5 L 15 27.5" fill="none" stroke="#0092d4" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6" stroke-dashoffset="6">
+            <animate attributeName="stroke-dashoffset" values="6;6;0;0" dur="4s" begin="0.8s" repeatCount="indefinite"/>
+          </path>
+          <rect x="10" y="38" width="6" height="6" rx="1" fill="none" stroke="#0092d4" stroke-width="0.8"/>
+          <line x1="20" y1="41" x2="78" y2="41" stroke="rgba(255,255,255,0.4)" stroke-width="0.7"/>
+          <path d="M 11.5 41 L 13 42.5 L 15 39.5" fill="none" stroke="#0092d4" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6" stroke-dashoffset="6">
+            <animate attributeName="stroke-dashoffset" values="6;6;6;0" dur="4s" begin="1.6s" repeatCount="indefinite"/>
+          </path>
+          <rect x="10" y="50" width="6" height="6" rx="1" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+          <line x1="20" y1="53" x2="68" y2="53" stroke="rgba(255,255,255,0.25)" stroke-width="0.7"/>
+        </g>
+      </svg>`,
+    // Data flowing through pipes — for Data Platform
+    pipeline: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <rect x="8" y="14" width="14" height="8" rx="1" fill="rgba(0,146,212,0.15)" stroke="#0092d4" stroke-width="0.6"/>
+        <rect x="8" y="28" width="14" height="8" rx="1" fill="rgba(0,146,212,0.15)" stroke="#0092d4" stroke-width="0.6"/>
+        <rect x="8" y="42" width="14" height="8" rx="1" fill="rgba(0,146,212,0.15)" stroke="#0092d4" stroke-width="0.6"/>
+        <line x1="22" y1="18" x2="44" y2="32" stroke="rgba(0,146,212,0.6)" stroke-width="0.6"/>
+        <line x1="22" y1="32" x2="44" y2="32" stroke="rgba(0,146,212,0.6)" stroke-width="0.6"/>
+        <line x1="22" y1="46" x2="44" y2="32" stroke="rgba(0,146,212,0.6)" stroke-width="0.6"/>
+        <rect x="44" y="26" width="18" height="12" rx="2" fill="rgba(0,146,212,0.20)" stroke="#0092d4" stroke-width="0.8"/>
+        <line x1="62" y1="32" x2="78" y2="32" stroke="rgba(0,146,212,0.6)" stroke-width="0.6"/>
+        <rect x="78" y="22" width="14" height="20" rx="2" fill="rgba(0,146,212,0.10)" stroke="#0092d4" stroke-width="0.8"/>
+        <circle r="1.4" fill="#0092d4">
+          <animateMotion dur="2.5s" repeatCount="indefinite" path="M 22 18 L 44 32 L 78 32"/>
+        </circle>
+        <circle r="1.4" fill="#0092d4">
+          <animateMotion dur="2.5s" begin="0.8s" repeatCount="indefinite" path="M 22 32 L 44 32 L 78 32"/>
+        </circle>
+        <circle r="1.4" fill="#0092d4">
+          <animateMotion dur="2.5s" begin="1.6s" repeatCount="indefinite" path="M 22 46 L 44 32 L 78 32"/>
+        </circle>
+      </svg>`,
+    // Decision nodes lighting up — for Decision Layer
+    decisions: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <line x1="50" y1="32" x2="20" y2="16" stroke="rgba(0,146,212,0.5)" stroke-width="0.5"/>
+        <line x1="50" y1="32" x2="80" y2="16" stroke="rgba(0,146,212,0.5)" stroke-width="0.5"/>
+        <line x1="50" y1="32" x2="20" y2="48" stroke="rgba(0,146,212,0.5)" stroke-width="0.5"/>
+        <line x1="50" y1="32" x2="80" y2="48" stroke="rgba(0,146,212,0.5)" stroke-width="0.5"/>
+        <circle cx="50" cy="32" r="5" fill="rgba(0,146,212,0.30)" stroke="#0092d4" stroke-width="1">
+          <animate attributeName="r" values="5;6.5;5" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="20" cy="16" r="3" fill="rgba(0,146,212,0.20)" stroke="#0092d4" stroke-width="0.8">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.4s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="80" cy="16" r="3" fill="rgba(0,146,212,0.20)" stroke="#0092d4" stroke-width="0.8">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.4s" begin="0.6s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="20" cy="48" r="3" fill="rgba(0,146,212,0.20)" stroke="#0092d4" stroke-width="0.8">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.4s" begin="1.2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="80" cy="48" r="3" fill="rgba(0,146,212,0.20)" stroke="#0092d4" stroke-width="0.8">
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="2.4s" begin="1.8s" repeatCount="indefinite"/>
+        </circle>
+      </svg>`,
+    // Climbing bars — for Unit Economics
+    bars: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <line x1="10" y1="52" x2="92" y2="52" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+        <rect x="14" y="40" width="10" height="0" fill="#0092d4" opacity="0.7">
+          <animate attributeName="height" values="0;12;12" dur="2.5s" repeatCount="indefinite"/>
+          <animate attributeName="y" values="52;40;40" dur="2.5s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="30" y="30" width="10" height="0" fill="#0092d4" opacity="0.8">
+          <animate attributeName="height" values="0;0;22;22" dur="2.5s" repeatCount="indefinite"/>
+          <animate attributeName="y" values="52;52;30;30" dur="2.5s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="46" y="22" width="10" height="0" fill="#0092d4" opacity="0.9">
+          <animate attributeName="height" values="0;0;0;30;30" dur="2.5s" repeatCount="indefinite"/>
+          <animate attributeName="y" values="52;52;52;22;22" dur="2.5s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="62" y="14" width="10" height="0" fill="#0092d4">
+          <animate attributeName="height" values="0;0;0;0;38" dur="2.5s" repeatCount="indefinite"/>
+          <animate attributeName="y" values="52;52;52;52;14" dur="2.5s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="78" y="20" width="10" height="32" fill="rgba(0,146,212,0.2)" stroke="#0092d4" stroke-width="0.5" stroke-dasharray="2"/>
+      </svg>`,
+    // Document with stamp — for Brand & Legal
+    document: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <rect x="22" y="10" width="44" height="48" rx="2" fill="rgba(255,255,255,0.04)" stroke="rgba(0,146,212,0.5)" stroke-width="0.7"/>
+        <line x1="28" y1="20" x2="60" y2="20" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+        <line x1="28" y1="26" x2="60" y2="26" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+        <line x1="28" y1="32" x2="56" y2="32" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+        <line x1="28" y1="38" x2="60" y2="38" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+        <line x1="28" y1="44" x2="50" y2="44" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+        <circle cx="72" cy="42" r="0" fill="none" stroke="#0092d4" stroke-width="1.2">
+          <animate attributeName="r" values="0;10;10;10" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;1;1;0.7" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        <text x="72" y="44" text-anchor="middle" font-family="monospace" font-size="4" fill="#0092d4" opacity="0">
+          OK
+          <animate attributeName="opacity" values="0;0;1;1" dur="3s" repeatCount="indefinite"/>
+        </text>
+      </svg>`,
+    // Single seedling growing — for Pilot Mindset
+    seedling: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <line x1="20" y1="52" x2="80" y2="52" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+        <path d="M 50 52 Q 50 44, 50 36" fill="none" stroke="#0092d4" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="20" stroke-dashoffset="20">
+          <animate attributeName="stroke-dashoffset" values="20;0;0" dur="3.5s" repeatCount="indefinite"/>
+        </path>
+        <ellipse cx="46" cy="38" rx="0" ry="0" fill="#0092d4" opacity="0.7" transform="rotate(-30 46 38)">
+          <animate attributeName="rx" values="0;0;5;5" dur="3.5s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="0;0;2.5;2.5" dur="3.5s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="54" cy="38" rx="0" ry="0" fill="#0092d4" opacity="0.7" transform="rotate(30 54 38)">
+          <animate attributeName="rx" values="0;0;5;5" dur="3.5s" begin="0.3s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="0;0;2.5;2.5" dur="3.5s" begin="0.3s" repeatCount="indefinite"/>
+        </ellipse>
+        <circle cx="50" cy="36" r="0" fill="#0092d4">
+          <animate attributeName="r" values="0;0;0;2.5" dur="3.5s" repeatCount="indefinite"/>
+        </circle>
+      </svg>`,
+    // Cash with arrow — for cashflow
+    cash: `
+      <svg class="rec-svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="96" height="56" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(0,146,212,0.4)" stroke-width="0.8"/>
+        <rect x="14" y="22" width="20" height="14" rx="1" fill="rgba(0,146,212,0.15)" stroke="#0092d4" stroke-width="0.6"/>
+        <text x="24" y="32" text-anchor="middle" font-family="monospace" font-size="6" fill="#0092d4">₹</text>
+        <rect x="38" y="22" width="20" height="14" rx="1" fill="rgba(0,146,212,0.15)" stroke="#0092d4" stroke-width="0.6"/>
+        <text x="48" y="32" text-anchor="middle" font-family="monospace" font-size="6" fill="#0092d4">₹</text>
+        <rect x="62" y="22" width="20" height="14" rx="1" fill="rgba(0,146,212,0.15)" stroke="#0092d4" stroke-width="0.6"/>
+        <text x="72" y="32" text-anchor="middle" font-family="monospace" font-size="6" fill="#0092d4">₹</text>
+        <path d="M 18 50 L 78 50" fill="none" stroke="#0092d4" stroke-width="1" stroke-dasharray="62" stroke-dashoffset="62">
+          <animate attributeName="stroke-dashoffset" values="62;0;0" dur="2.5s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 76 47 L 80 50 L 76 53" fill="none" stroke="#0092d4" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="0">
+          <animate attributeName="opacity" values="0;0;1;1" dur="2.5s" repeatCount="indefinite"/>
+        </path>
+      </svg>`
+  };
+
+  const OP_RECS = {
+    Visibility: { title: "A Single-Pane Ops Dashboard", body: "Pull every outlet's revenue, ticket volume, inventory, and exception alerts into one live view your leadership team actually opens daily. Cuts blind spots and 'they called us upset' moments.", svg: SVG.dashboard },
+    Expansion: { title: "A Territory & Site-Selection Engine", body: "Layered demographic, drive-time, and competitor data that turns 'where should we open next' from a relationship call into a defensible decision in 20 minutes.", svg: SVG.map },
+    Standardization: { title: "A Franchisee Onboarding System", body: "Document, training, compliance, and time-to-revenue tracking in one flow. Cuts ramp time and makes new outlets feel like the others — not a custom build every time.", svg: SVG.checklist },
+    Decisions: { title: "A Decision Layer for Leadership", body: "Move from monthly reviews to a weekly decision rhythm — backed by trustworthy data and clear KPI ownership across your franchisees.", svg: SVG.decisions }
+  };
+  const OP_REC_PICK = {
+    visibility: OP_RECS.Visibility,
+    expansion: OP_RECS.Expansion,
+    standardization: OP_RECS.Standardization,
+    data: { title: "An Ops Data Platform", body: "Stop reconciling spreadsheets. A platform that ingests your POS, ops, and franchise data and answers operational questions instead of generating more reports.", svg: SVG.pipeline }
+  };
+
+  function renderOperatorRecs(dimSet, picked) {
+    const sorted = Object.entries(dimSet).sort((a,b) => a[1] - b[1]);
+    const recs = [];
+    if (picked && OP_REC_PICK[picked]) recs.push(OP_REC_PICK[picked]);
+    sorted.forEach(([dim]) => {
+      const r = OP_RECS[dim];
+      if (r && !recs.find(x => x.title === r.title)) recs.push(r);
+    });
+    document.getElementById("r-recs").innerHTML = recs.slice(0,3).map(r =>
+      `<div class="rec">${r.svg || ""}<h4>${r.title}</h4><p>${r.body}</p></div>`
+    ).join("");
+  }
+
+  const EM_RECS = {
+    "Unit Economics": { title: "Lock Down Your Unit Economics", body: "Before signing any franchisee, you need a payback model with at least 18 months of clean data — including the months that didn't go well. We help model, stress-test, and document it for franchisee due diligence.", svg: SVG.bars },
+    "Process": { title: "Build the SOP & Training Backbone", body: "Process documentation, training videos, and a learning management system. The single biggest reason franchisees fail is that the brand can't transfer how it actually operates.", svg: SVG.checklist },
+    "Brand & Legal": { title: "Get the Brand & Legal House in Order", body: "Trademark filings, franchise agreement template, FDD-equivalent disclosure document, and IP protection. Boring work that breaks deals when skipped.", svg: SVG.document },
+    "Pilot Mindset": { title: "Design a Real Pilot Franchise", body: "One franchisee. Hand-held. With a measurement playbook for what you'll learn before #2. Most emerging brands fail by signing #2 before #1 has reached month 6.", svg: SVG.seedling }
+  };
+  const EM_REC_PICK = {
+    cashflow: { title: "A Cash-Flow-Conscious Franchise Plan", body: "If you're franchising primarily for cash, you need a different structure than growth-driven brands. Higher upfront fee, lower royalty, more support — designed so you don't trade tomorrow's brand for today's cash.", svg: SVG.cash },
+    growth: { title: "A Demand-Capture Expansion Plan", body: "If demand is real, the question is sequencing — which cities, what franchisee profile, what minimum viable support team. We've built this for emerging brands ready to scale carefully.", svg: SVG.map },
+    model: { title: "A Franchise Operating System", body: "If the model works, the next question is whether your operating system can be transferred. We help you turn what's in your head into a system your franchisees can run.", svg: SVG.pipeline }
+  };
+
+  function renderEmergingRecs(dimSet, picked) {
+    const sorted = Object.entries(dimSet).sort((a,b) => a[1] - b[1]);
+    const recs = [];
+    if (picked && EM_REC_PICK[picked]) recs.push(EM_REC_PICK[picked]);
+    sorted.forEach(([dim]) => {
+      const r = EM_RECS[dim];
+      if (r && !recs.find(x => x.title === r.title)) recs.push(r);
+    });
+    document.getElementById("r-recs").innerHTML = recs.slice(0,3).map(r =>
+      `<div class="rec">${r.svg || ""}<h4>${r.title}</h4><p>${r.body}</p></div>`
+    ).join("");
+  }
+
+  const PHONE = "919999999999"; // TODO: replace
+
+  function setupWhatsApp(score, label) {
+    const msg = `Hi Sneha — I just took the Simbiotrek Franchise Snapshot.\n\nBrand: ${state.brand}\n${label} Score: ${score}/100\n\nI'd like to talk through it.`;
+    document.getElementById("waBtn").href = `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
+  }
+  function setupBrokerWA() {
+    const msg = `Hi Sneha — saw the Simbiotrek card at Franchise India. I'd like to talk about referrals / partnerships.`;
+    document.getElementById("brokerBtn").href = `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
+  }
+
+  function restart() {
+    state.path = null;
+    state.answers = {};
+    state.recPick = null;
+    state.name = ""; state.brand = ""; state.phone = ""; state.email = "";
+    state.history = [];
+    document.querySelectorAll(".option.selected").forEach(b => b.classList.remove("selected"));
+    ["f-name","f-brand","f-email","f-phone"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.value = ""; el.classList.remove("invalid"); }
+    });
+    const err = document.getElementById("formError");
+    if (err) err.style.display = "none";
+    goTo("intro");
+  }
+</script>
+</body>
+</html>
